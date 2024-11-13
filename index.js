@@ -1,57 +1,48 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
-require('dotenv').config(); // For reading environment variables from .env file
+const express = require("express");
+const nodemailer = require("nodemailer");
+const bodyParser = require("body-parser");
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Serve static files from the 'public' folder
+// Serve static files from the 'public' directory
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Test route to check if the server is up
-app.get('/', (req, res) => {
-    res.send('Welcome to the email sending service!');
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/public/contact-form.html");  // Serve your HTML form
 });
 
 // Nodemailer transporter setup for Gmail
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
-        user: process.env.EMAIL, // Your email from the .env file
-        pass: process.env.PASSWORD, // Your app password from the .env file
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
     },
 });
 
 // POST route to handle sending emails
-app.post('/send-email', async (req, res) => {
+app.post("/send-email", async (req, res) => {
     const { senderEmail, recipients, subject, message } = req.body;
-
-    // Validation: Check if required fields are present
-    if (!senderEmail || !recipients || !subject || !message) {
-        return res.status(400).send('Please provide all required fields.');
-    }
 
     try {
         const mailOptions = {
-            from: senderEmail, // The sender's email
-            to: recipients.split(','), // Comma-separated list of recipients
-            subject: subject, // Subject of the email
-            text: message, // The message content
+            from: senderEmail,
+            to: recipients.split(","),
+            subject: subject,
+            text: message,
         };
 
-        // Log the mail options for debugging
-        console.log('Sending email with the following details:', mailOptions);
-
-        // Send the email
         await transporter.sendMail(mailOptions);
-        res.status(200).send('Email sent successfully!');
+        res.status(200).send("Email sent successfully!");
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).send('Failed to send email. ' + error.message);
+        console.error("Error sending email:", error);
+        res.status(500).send("Failed to send email.");
     }
 });
 

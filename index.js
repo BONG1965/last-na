@@ -31,13 +31,27 @@ app.post("/send-email", async (req, res) => {
     const { senderEmail, recipients, subject, message } = req.body;
 
     try {
+        // Validate senderEmail (ensure it's coming from a real email address)
+        if (!senderEmail || !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(senderEmail)) {
+            return res.status(400).send("Invalid sender email.");
+        }
+
+        // Validate recipients (check if recipients are not empty)
+        if (!recipients) {
+            return res.status(400).send("Recipient(s) email is required.");
+        }
+
+        // Split multiple recipients by commas and clean up whitespace
+        const recipientList = recipients.split(",").map((email) => email.trim());
+
         const mailOptions = {
-            from: senderEmail,
-            to: recipients.split(","),
+            from: senderEmail, // This dynamic sender email
+            to: recipientList, // Recipients list from the form
             subject: subject,
             text: message,
         };
 
+        // Send email
         await transporter.sendMail(mailOptions);
         res.status(200).send("Email sent successfully!");
     } catch (error) {

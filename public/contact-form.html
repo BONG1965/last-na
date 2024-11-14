@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Contact Us</h1>
-    <form action="http://localhost:3000/send-email" method="POST">
+    <form id="contactForm" method="POST">
         <label for="senderEmail">Your Email:</label>
         <input type="email" id="senderEmail" name="senderEmail" required><br><br>
 
@@ -22,5 +22,10 @@
 
         <button type="submit">Send Email</button>
     </form>
+
+    <script>
+        // Set the form action to use the deployed BASE_URL
+        document.getElementById('contactForm').action = `${window.location.origin}/send-email`;
+    </script>
 </body>
 </html>
